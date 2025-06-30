@@ -26,9 +26,19 @@ export const insertTriggers = async (taskId, triggers) => {
 };
 
 
-export const getAllTasksWithDetails = async () => {
-  const [taskRows] = await db.query('SELECT * FROM Tasks');
+export const getAllTasksWithDetails = async (page = 1, limit = 10) => {
+  const offset = (page - 1) * limit;
 
+  // Step 1: Get total task count
+  const [[{ total }]] = await db.query('SELECT COUNT(*) AS total FROM Tasks');
+
+  // Step 2: Get paginated task rows
+  const [taskRows] = await db.query(
+    'SELECT * FROM Tasks ORDER BY TaskID DESC LIMIT ? OFFSET ?',
+    [limit, offset]
+  );
+
+  // Step 3: For each task, get related ManualStatus and Triggers
   const results = await Promise.all(
     taskRows.map(async (task) => {
       const [manualStatusRows] = await db.query(
@@ -55,5 +65,13 @@ export const getAllTasksWithDetails = async () => {
     })
   );
 
-  return results;
+  // Step 4: Return paginated response
+  return {
+    page,
+    limit,
+    total,
+    pages: Math.ceil(total / limit),
+    tasks: results
+  };
 };
+

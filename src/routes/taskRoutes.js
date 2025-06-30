@@ -6,7 +6,8 @@ const router = express.Router();
 // router.get('/', taskController.list);
 // router.get('/new', taskController.createForm);
 router.post('/createTask', taskController.createTaskWithDetails);
-router.get('/getAllTask', taskController.listTasksWithDetails);
+router.post('/getAllTask', taskController.listTasksWithDetails);
+router.put('/updateTask', taskController.updateTaskWithDetails);
 
 // router.get('/:id', taskController.show);
 // router.get('/:id/edit', taskController.editForm);
